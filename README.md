@@ -76,6 +76,10 @@ make docker-down   # コンテナを停止
 **ポート 5437 が衝突する**  
 `docker-compose.yml` と `.env` の `5437` を空きポートに変更する。
 
+**`docker compose up` で PostgreSQL 18 のデータディレクトリエラーが出る**  
+古い `sqlc-example_sqlcdemo-pgdata` ボリュームが残っている可能性がある。  
+`docker volume rm sqlc-example_sqlcdemo-pgdata` を実行してから `make docker-up` をやり直す。
+
 **`make sqlc` が失敗する**  
 `sqlc.yaml` の `engine` / `sql_package` / `out` のパスを確認する。  
 sqlc は DB 接続なしに SQL ファイルのみから生成する。

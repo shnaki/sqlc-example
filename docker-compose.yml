@@ -8,7 +8,7 @@ services:
     ports:
       - "5437:5432"
     volumes:
-      - sqlcdemo-pgdata:/var/lib/postgresql/data
+      - sqlcdemo-pgroot:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sqlcdemo"]
       interval: 5s
@@ -16,4 +16,4 @@ services:
       retries: 5
 
 volumes:
-  sqlcdemo-pgdata:
+  sqlcdemo-pgroot:
