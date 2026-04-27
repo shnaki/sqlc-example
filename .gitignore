@@ -1,0 +1,6 @@
+.env
+bin/
+*.exe
+
+# IDE
+.idea/
