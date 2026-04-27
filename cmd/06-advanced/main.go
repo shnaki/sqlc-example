@@ -4,13 +4,13 @@
   - text[] 列  — Go の []string を PostgreSQL text[] に読み書きする
   - Enum 値    — PostStatus 型の定数 (PostStatusPublished 等) を使って型安全に絞り込む
   - CTE + keyset ページネーション
-      WITH anchor AS (...) + (created_at, id) < $cursor の複合条件で
-      ソートと重複なしのページ送りを実現する
+    WITH anchor AS (...) + (created_at, id) < $cursor の複合条件で
+    ソートと重複なしのページ送りを実現する
 
 対応 SQL: db/query/advanced.sql
 
-実行方法: make run-06  /  go run ./cmd/06-advanced
-DB が起動していない場合は make docker-up && make migrate-up を先に実行すること。
+実行方法: just run-06  /  go run ./cmd/06-advanced
+DB が起動していない場合は just docker-up && just migrate-up を先に実行すること。
 */
 package main
 
@@ -172,8 +172,8 @@ func main() {
 
 	// 第1ページ: cursor_id = NULL (ゼロ値 pgtype.UUID{Valid:false})
 	page1, err := q.KeysetListPosts(ctx, sqlcgen.KeysetListPostsParams{
-		CursorID: pgtype.UUID{},   // Valid: false → 先頭ページ
-		PageSize:  pageSize,
+		CursorID: pgtype.UUID{}, // Valid: false → 先頭ページ
+		PageSize: pageSize,
 	})
 	if err != nil {
 		log.Fatalf("KeysetListPosts(page1): %v", err)
@@ -188,7 +188,7 @@ func main() {
 		lastPost := page1[len(page1)-1]
 		page2, err := q.KeysetListPosts(ctx, sqlcgen.KeysetListPostsParams{
 			CursorID: lastPost.ID, // cursor_id = 前ページの末尾
-			PageSize:  pageSize,
+			PageSize: pageSize,
 		})
 		if err != nil {
 			log.Fatalf("KeysetListPosts(page2): %v", err)

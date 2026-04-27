@@ -7,8 +7,8 @@
 
 対応 SQL: db/query/authors.sql
 
-実行方法: make run-01  /  go run ./cmd/01-basics
-DB が起動していない場合は make docker-up && make migrate-up を先に実行すること。
+実行方法: just run-01  /  go run ./cmd/01-basics
+DB が起動していない場合は just docker-up && just migrate-up を先に実行すること。
 */
 package main
 

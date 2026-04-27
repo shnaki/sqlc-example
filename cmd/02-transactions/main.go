@@ -7,8 +7,8 @@
 
 対応 SQL: db/query/authors.sql, db/query/posts.sql
 
-実行方法: make run-02  /  go run ./cmd/02-transactions
-DB が起動していない場合は make docker-up && make migrate-up を先に実行すること。
+実行方法: just run-02  /  go run ./cmd/02-transactions
+DB が起動していない場合は just docker-up && just migrate-up を先に実行すること。
 */
 package main
 

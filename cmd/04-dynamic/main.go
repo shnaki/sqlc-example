@@ -2,14 +2,14 @@
 示す sqlc 機能:
   - sqlc.arg('name')  — パラメータに明示的な名前を付ける (Params 構造体のフィールド名に反映)
   - sqlc.narg('name') — NULL 許容パラメータ (pgtype.UUID{Valid:false} / NullPostStatus{Valid:false} 等)
-                        IS NULL OR col = $x パターンで動的フィルタを実現する
+    IS NULL OR col = $x パターンで動的フィルタを実現する
   - sqlc.slice('name')— pgx/v5 では WHERE id = ANY($1::uuid[]) に展開される ([]pgtype.UUID を渡す)
   - COALESCE + narg   — 部分更新 (NULL を渡した列は元の値を維持)
 
 対応 SQL: db/query/posts_dynamic.sql
 
-実行方法: make run-04  /  go run ./cmd/04-dynamic
-DB が起動していない場合は make docker-up && make migrate-up を先に実行すること。
+実行方法: just run-04  /  go run ./cmd/04-dynamic
+DB が起動していない場合は just docker-up && just migrate-up を先に実行すること。
 */
 package main
 
@@ -108,7 +108,7 @@ func main() {
 		AuthorID: author.ID,
 		Status: sqlcgen.NullPostStatus{
 			PostStatus: sqlcgen.PostStatusPublished,
-			Valid:       true,
+			Valid:      true,
 		},
 		TitleLike: pgtype.Text{
 			String: "%sqlc%",

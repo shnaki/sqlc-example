@@ -33,17 +33,17 @@ internal/db/sqlcgen/       # sqlc 生成物 (手書き禁止)
 
 ## sqlc 利用ルール
 
-- `internal/db/sqlcgen/` は **手で書かない** — 必ず `make sqlc` で生成する。
-- `cmd/*/main.go` は SQL を直接書かない — すべて `db/query/*.sql` に書いて `make sqlc` を実行する。
+- `internal/db/sqlcgen/` は **手で書かない** — 必ず `just sqlc` で生成する。
+- `cmd/*/main.go` は SQL を直接書かない — すべて `db/query/*.sql` に書いて `just sqlc` を実行する。
 - `pgxpool.Pool` はプログラム起動時に1度だけ生成し、都度 `New()` しない。
 - 新しいクエリを追加する場合の手順:
   1. `db/query/*.sql` に SQL を追加
-  2. `make sqlc` で生成物を更新
+  2. `just sqlc` で生成物を更新
   3. `cmd/` 側から生成型を使って実装
 
 ## マイグレーション規約
 
-- `make migrate-create name=xxx` でファイルを生成し、up/down を必ずペアで書く。
+- `just migrate-create xxx` でファイルを生成し、up/down を必ずペアで書く。
 - マイグレーションファイルの順序: 依存先テーブルを先に作る (authors → posts → comments)。
 - `enum` 型は最初に使うテーブルと同じファイルに置き、down で `DROP TYPE` も書く。
 
@@ -52,7 +52,7 @@ internal/db/sqlcgen/       # sqlc 生成物 (手書き禁止)
 新しい sqlc 機能を示すサンプルを追加する場合:
 
 1. `cmd/0N-<topic>/main.go` を新設
-2. 必要なら `db/query/xxx.sql` を追加し `make sqlc` を実行
+2. 必要なら `db/query/xxx.sql` を追加し `just sqlc` を実行
 3. `README.md` のサンプル一覧テーブルに行を追加
 
 ## アンチパターン
@@ -64,8 +64,8 @@ internal/db/sqlcgen/       # sqlc 生成物 (手書き禁止)
 
 ## コーディング規約
 
-- `make fmt` (`goimports`) 必須
-- `make lint` (golangci-lint) を通す
+- `just fmt` (`goimports`) 必須
+- `just lint` (golangci-lint) を通す
 - Conventional Commits 形式でコミットを作成し、説明は日本語で記述する
 
 ## コミット規約

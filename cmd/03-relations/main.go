@@ -8,8 +8,8 @@
 
 対応 SQL: db/query/posts.sql, db/query/comments.sql
 
-実行方法: make run-03  /  go run ./cmd/03-relations
-DB が起動していない場合は make docker-up && make migrate-up を先に実行すること。
+実行方法: just run-03  /  go run ./cmd/03-relations
+DB が起動していない場合は just docker-up && just migrate-up を先に実行すること。
 */
 package main
 
