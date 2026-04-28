@@ -1,6 +1,7 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+set dotenv-load
 
-DB_URL := env_var_or_default("DB_URL", "postgres://sqlcdemo:sqlcdemo@localhost:5437/sqlcdemo?sslmode=disable")
+DB_URL := env("DB_URL", "postgres://sqlcdemo:sqlcdemo@localhost:5437/sqlcdemo?sslmode=disable")
 MIGRATIONS_DIR := "db/migrations"
 
 default:
