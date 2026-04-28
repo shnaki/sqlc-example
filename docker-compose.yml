@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: sqlcdemo
+      POSTGRES_USER: sqlcdemo
+      POSTGRES_PASSWORD: sqlcdemo
+    ports:
+      - "5437:5432"
+    volumes:
+      - sqlcdemo-pgroot:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sqlcdemo"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sqlcdemo-pgroot:
