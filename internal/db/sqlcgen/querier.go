@@ -23,6 +23,11 @@ type Querier interface {
 	// :batchmany → Batch 内で複数行を返すクエリ
 	// Go 側: .Query(func(i int, p Post, err error){})
 	BatchListPostsByAuthor(ctx context.Context, authorID []pgtype.UUID) *BatchListPostsByAuthorBatchResults
+	// :copyfrom は pgx の CopyFrom プロトコルを使った高速バルク INSERT。
+	// (:batchexec との違い) batchexec は複数 INSERT を1往復でまとめるが
+	// copyfrom は PostgreSQL COPY プロトコルを使うためさらに高速。
+	// 戻り値は挿入件数 (int64)。
+	CopyInsertPosts(ctx context.Context, arg []CopyInsertPostsParams) (int64, error)
 	// 01-basics で使用するクエリ
 	// 示す機能: :one / :many / :exec / :execrows
 	// INSERT ... RETURNING * → Author 構造体を返す (:one)
@@ -45,6 +50,9 @@ type Querier interface {
 	// 生成される行型: GetPostWithAuthorRow { Post Post; Author Author }
 	// p.* や a.* ではなく sqlc.embed() を使うことでカラム名衝突を回避する
 	GetPostWithAuthor(ctx context.Context, id pgtype.UUID) (GetPostWithAuthorRow, error)
+	// 同じ email が既に存在する場合は何もせず 0 行を返す。
+	// 戻り値 (int64) で挿入されたか衝突したかを判別できる。
+	InsertAuthorIgnoreConflict(ctx context.Context, arg InsertAuthorIgnoreConflictParams) (int64, error)
 	// CTE を使った keyset ページネーション
 	// cursor_id が NULL の場合は先頭ページ、指定した場合はその投稿の次ページを返す
 	// インデックス idx_posts_keyset (created_at DESC, id DESC) を活用する
@@ -56,12 +64,21 @@ type Querier interface {
 	// sqlc.slice('x') → pgx/v5 では WHERE id = ANY($1::uuid[]) に展開される
 	// Go 側の引数は []pgtype.UUID になる (IN ($1,$2,...) ではない点に注意)
 	ListPostsByIDs(ctx context.Context, ids []pgtype.UUID) ([]Post, error)
+	// COUNT(*) OVER() で全件数を取得しながら LIMIT/OFFSET でページング。
+	// 1 クエリで total_count とページ内容を同時に取得できる。
+	ListPostsPageWithTotal(ctx context.Context, arg ListPostsPageWithTotalParams) ([]ListPostsPageWithTotalRow, error)
+	// ROW_NUMBER() OVER (PARTITION BY ...) で著者ごとの新着順番号を付与する。
+	// PARTITION BY で著者ごとにリセット、ORDER BY created_at DESC で新しい投稿が 1 番。
+	ListPostsRankedByAuthor(ctx context.Context) ([]ListPostsRankedByAuthorRow, error)
 	// array_agg() で 1:N の本文を text[] としてまとめる
 	// FILTER (WHERE ...) で NULL を除外し、COALESCE で空配列を保証する
 	ListPostsWithCommentBodies(ctx context.Context, authorID pgtype.UUID) ([]ListPostsWithCommentBodiesRow, error)
 	// LEFT JOIN + GROUP BY でコメント数を集計する
 	// COUNT(c.id) はコメントがない投稿では 0 になる
 	ListPostsWithCommentCount(ctx context.Context, authorID pgtype.UUID) ([]ListPostsWithCommentCountRow, error)
+	// LAG() OVER (...) で同一著者の1つ前の投稿タイトルを取得する。
+	// 先頭行の prev_title は NULL (pgtype.Text{Valid: false}) になる。
+	ListPostsWithPrevTitle(ctx context.Context) ([]ListPostsWithPrevTitleRow, error)
 	// PostStatus 型の定数 (PostStatusPublished 等) を使う例
 	ListPublishedPosts(ctx context.Context) ([]Post, error)
 	// 04-dynamic で使用するクエリ
@@ -69,11 +86,19 @@ type Querier interface {
 	// sqlc.narg('x') → NULL 許容引数を生成する (NullXxx 型)
 	// IS NULL OR col = $x パターンで動的フィルタを実現する
 	SearchPosts(ctx context.Context, arg SearchPostsParams) ([]Post, error)
+	// to_tsvector('simple', ...) @@ plainto_tsquery('simple', ...) で全文検索。
+	// 'simple' 辞書は形態素解析なしで英数字をそのまま正規化する。
+	// ts_rank() でスコア降順に並べる。
+	// idx_posts_search (GIN) が WHERE 節で使われて高速化される。
+	SearchPostsFullText(ctx context.Context, arg SearchPostsFullTextParams) ([]SearchPostsFullTextRow, error)
 	// 更新系で戻り値不要な場合は :exec (返り値は error のみ)
 	UpdateAuthorBio(ctx context.Context, arg UpdateAuthorBioParams) error
 	// sqlc.narg() + COALESCE パターンで部分更新を実現する
 	// NULL を渡した列は元の値を維持する
 	UpdatePostFlexible(ctx context.Context, arg UpdatePostFlexibleParams) error
+	// 同じ email が既に存在する場合は name / bio / metadata を更新して返す。
+	// EXCLUDED.* は INSERT しようとした新しい値を参照する。
+	UpsertAuthorByEmail(ctx context.Context, arg UpsertAuthorByEmailParams) (Author, error)
 	// 06-advanced で使用するクエリ
 	// 示す機能: JSONB / text[] 配列 / CTE + keyset ページネーション / enum 値
 	// jsonb 列に []byte (JSON) を渡す

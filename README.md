@@ -36,6 +36,10 @@ just build                    # 全サンプルのビルド確認
 | 04 | dynamic      | `sqlc.arg` / `sqlc.narg` / `sqlc.slice` で動的クエリ |
 | 05 | batch        | `:batchexec` / `:batchone` / `:batchmany` |
 | 06 | advanced     | JSONB `[]byte` / `text[]` `[]string` / Enum 定数 / CTE keyset ページネーション |
+| 07 | upsert       | `INSERT ... ON CONFLICT DO UPDATE` / `DO NOTHING` / `EXCLUDED.*` |
+| 08 | copyfrom     | `:copyfrom` で pgx CopyFrom プロトコルを使った高速バルク INSERT |
+| 09 | window       | `ROW_NUMBER` / `LAG` / `COUNT(*) OVER()` によるウィンドウ関数 |
+| 10 | fulltext     | `tsvector` / GIN インデックス / `plainto_tsquery` / `ts_rank` による全文検索 |
 
 ## 実行コマンド
 
@@ -46,6 +50,10 @@ just run-03   # = go run ./cmd/03-relations
 just run-04   # = go run ./cmd/04-dynamic
 just run-05   # = go run ./cmd/05-batch
 just run-06   # = go run ./cmd/06-advanced
+just run-07   # = go run ./cmd/07-upsert
+just run-08   # = go run ./cmd/08-copyfrom
+just run-09   # = go run ./cmd/09-window
+just run-10   # = go run ./cmd/10-fulltext
 ```
 
 実行前に DB が起動していることを確認する (`just docker-up && just migrate-up`)。

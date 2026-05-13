@@ -8,7 +8,7 @@ default:
     @just --list
 
 dev:
-    @echo "利用可能なサンプル: 01-basics 02-transactions 03-relations 04-dynamic 05-batch 06-advanced"
+    @echo "利用可能なサンプル: 01-basics 02-transactions 03-relations 04-dynamic 05-batch 06-advanced 07-upsert 08-copyfrom 09-window 10-fulltext"
     @echo "実行方法: just run-01  /  go run ./cmd/01-basics"
 
 build:
@@ -59,3 +59,15 @@ run-05:
 
 run-06:
     @go run ./cmd/06-advanced
+
+run-07:
+    @go run ./cmd/07-upsert
+
+run-08:
+    @go run ./cmd/08-copyfrom
+
+run-09:
+    @go run ./cmd/09-window
+
+run-10:
+    @go run ./cmd/10-fulltext
