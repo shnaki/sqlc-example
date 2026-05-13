@@ -1,0 +1,3 @@
+ALTER TABLE authors DROP CONSTRAINT IF EXISTS authors_email_unique;
+
+ALTER TABLE authors DROP COLUMN IF EXISTS email;

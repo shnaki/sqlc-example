@@ -15,7 +15,7 @@ const createAuthor = `-- name: CreateAuthor :one
 
 INSERT INTO authors (name, bio, metadata)
 VALUES ($1, $2, $3)
-RETURNING id, name, bio, metadata, created_at
+RETURNING id, name, bio, metadata, created_at, email
 `
 
 type CreateAuthorParams struct {
@@ -36,6 +36,7 @@ func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Aut
 		&i.Bio,
 		&i.Metadata,
 		&i.CreatedAt,
+		&i.Email,
 	)
 	return i, err
 }
@@ -55,7 +56,7 @@ func (q *Queries) DeleteAuthor(ctx context.Context, id pgtype.UUID) (int64, erro
 }
 
 const getAuthor = `-- name: GetAuthor :one
-SELECT id, name, bio, metadata, created_at FROM authors WHERE id = $1
+SELECT id, name, bio, metadata, created_at, email FROM authors WHERE id = $1
 `
 
 // 主キーで1行取得 (:one は存在しない場合 pgx.ErrNoRows を返す)
@@ -68,12 +69,13 @@ func (q *Queries) GetAuthor(ctx context.Context, id pgtype.UUID) (Author, error)
 		&i.Bio,
 		&i.Metadata,
 		&i.CreatedAt,
+		&i.Email,
 	)
 	return i, err
 }
 
 const listAuthors = `-- name: ListAuthors :many
-SELECT id, name, bio, metadata, created_at FROM authors ORDER BY created_at
+SELECT id, name, bio, metadata, created_at, email FROM authors ORDER BY created_at
 `
 
 // 全件取得 (:many は []Author を返す)
@@ -92,6 +94,7 @@ func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
 			&i.Bio,
 			&i.Metadata,
 			&i.CreatedAt,
+			&i.Email,
 		); err != nil {
 			return nil, err
 		}
