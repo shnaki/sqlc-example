@@ -50,7 +50,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 }
 
 const getPostWithAuthor = `-- name: GetPostWithAuthor :one
-SELECT p.id, p.author_id, p.title, p.body, p.tags, p.status, p.published_at, p.created_at, a.id, a.name, a.bio, a.metadata, a.created_at
+SELECT p.id, p.author_id, p.title, p.body, p.tags, p.status, p.published_at, p.created_at, a.id, a.name, a.bio, a.metadata, a.created_at, a.email
 FROM posts p
 JOIN authors a ON a.id = p.author_id
 WHERE p.id = $1
@@ -81,6 +81,7 @@ func (q *Queries) GetPostWithAuthor(ctx context.Context, id pgtype.UUID) (GetPos
 		&i.Author.Bio,
 		&i.Author.Metadata,
 		&i.Author.CreatedAt,
+		&i.Author.Email,
 	)
 	return i, err
 }

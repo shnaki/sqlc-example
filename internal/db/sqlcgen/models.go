@@ -60,6 +60,7 @@ type Author struct {
 	Bio       string
 	Metadata  []byte
 	CreatedAt pgtype.Timestamptz
+	Email     pgtype.Text
 }
 
 type Comment struct {
